@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Price List</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <table id="priceTable">
+        <thead>
+            <tr>
+                <th>Period Start Date</th>
+                <th>Period End Date</th>
+                <th>Time Of Use</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <script>
+        const xmlString = `
+        <priceLists>
+            <priceList>
+                <periodStartDate>2023-10-01</periodStartDate>
+                <periodEndDate>2023-10-31</periodEndDate>
+                <prices>
+                    <timeOfUse>NF BD PK</timeOfUse>
+                    <price>0.428062</price>
+                </prices>
+                <prices>
+                    <timeOfUse>AOT</timeOfUse>
+                    <price>0.12312</price>
+                </prices>
+            </priceList>
+            <priceList>
+                <periodStartDate>2023-11-01</periodStartDate>
+                <periodEndDate>2023-11-30</periodEndDate>
+                <prices>
+                    <timeOfUse>NF BD PK</timeOfUse>
+                    <price>0.429062</price>
+                </prices>
+                <prices>
+                    <timeOfUse>AOT</timeOfUse>
+                    <price>0.12412</price>
+                </prices>
+            </priceList>
+        </priceLists>`;
+
+        function parseXML(xmlString) {
+            const parser = new DOMParser();
+            return parser.parseFromString(xmlString, 'application/xml');
+        }
+
+        function generateTableFromXML(xml) {
+            const tbody = document.querySelector('#priceTable tbody');
+            const priceLists = xml.getElementsByTagName('priceList');
+
+            for (let i = 0; i < priceLists.length; i++) {
+                const priceList = priceLists[i];
+                const periodStartDate = priceList.getElementsByTagName('periodStartDate')[0].textContent;
+                const periodEndDate = priceList.getElementsByTagName('periodEndDate')[0].textContent;
+                const prices = priceList.getElementsByTagName('prices');
+
+                for (let j = 0; j < prices.length; j++) {
+                    const timeOfUse = prices[j].getElementsByTagName('timeOfUse')[0].textContent;
+                    const price = prices[j].getElementsByTagName('price')[0].textContent;
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${periodStartDate}</td>
+                        <td>${periodEndDate}</td>
+                        <td>${timeOfUse}</td>
+                        <td>${price}</td>
+                    `;
+                    tbody.appendChild(row);
+                }
+            }
+        }
+
+        const xml = parseXML(xmlString);
+        generateTableFromXML(xml);
+    </script>
+</body>
+</html>
