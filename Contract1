@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Contract List</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        .buttons {
+            margin-top: 10px;
+        }
+        #xmlOutput {
+            margin-top: 20px;
+            white-space: pre-wrap;
+            border: 1px solid black;
+            padding: 10px;
+        }
+    </style>
+    <script>
+        function parseXML(xmlString) {
+            const parser = new DOMParser();
+            return parser.parseFromString(xmlString, 'text/xml');
+        }
+
+        function fetchData(contractId) {
+            // Placeholder function to fetch data
+            return `Data for contract ID: ${contractId}`;
+        }
+
+        function saveData(contractId) {
+            const inputId = `input_${contractId}`;
+            const inputValue = document.getElementById(inputId).value;
+            const fetchedData = fetchData(contractId);
+            
+            // Generate XML for this entry
+            const xmlString = generateXML(contractId, fetchedData, inputValue);
+            displayXML(xmlString);
+        }
+
+        function cancelData(contractId) {
+            const inputId = `input_${contractId}`;
+            document.getElementById(inputId).value = '';
+        }
+
+        function generateXML(contractId, fetchedData, inputValue) {
+            const xmlDoc = document.implementation.createDocument("", "", null);
+            const contractElement = xmlDoc.createElement('contract');
+            
+            const idElement = xmlDoc.createElement('contractId');
+            idElement.textContent = contractId;
+            contractElement.appendChild(idElement);
+            
+            const derivedValueElement = xmlDoc.createElement('derivedValue');
+            derivedValueElement.textContent = fetchedData;
+            contractElement.appendChild(derivedValueElement);
+
+            const inputValueElement = xmlDoc.createElement('inputValue');
+            inputValueElement.textContent = inputValue;
+            contractElement.appendChild(inputValueElement);
+
+            xmlDoc.appendChild(contractElement);
+
+            const serializer = new XMLSerializer();
+            return serializer.serializeToString(xmlDoc);
+        }
+
+        function displayXML(xmlString) {
+            const xmlOutput = document.getElementById('xmlOutput');
+            xmlOutput.textContent = xmlString;
+        }
+
+        function createTable(xml) {
+            const contractList = xml.getElementsByTagName('contractListXML');
+            const tableBody = document.getElementById('contractTableBody');
+
+            for (let i = 0; i < contractList.length; i++) {
+                const contractId = contractList[i].getElementsByTagName('contractId')[0].textContent;
+
+                const row = document.createElement('tr');
+
+                const contractIdCell = document.createElement('td');
+                contractIdCell.textContent = contractId;
+                row.appendChild(contractIdCell);
+
+                const fetchedDataCell = document.createElement('td');
+                fetchedDataCell.textContent = fetchData(contractId);
+                row.appendChild(fetchedDataCell);
+
+                const inputCell = document.createElement('td');
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.id = `input_${contractId}`;
+                inputCell.appendChild(input);
+                row.appendChild(inputCell);
+
+                const actionsCell = document.createElement('td');
+                actionsCell.className = 'buttons';
+
+                const saveButton = document.createElement('button');
+                saveButton.textContent = 'Save';
+                saveButton.onclick = () => saveData(contractId);
+                actionsCell.appendChild(saveButton);
+
+                const cancelButton = document.createElement('button');
+                cancelButton.textContent = 'Cancel';
+                cancelButton.onclick = () => cancelData(contractId);
+                actionsCell.appendChild(cancelButton);
+
+                row.appendChild(actionsCell);
+
+                tableBody.appendChild(row);
+            }
+        }
+
+        window.onload = function() {
+            const xmlString = `
+                <contracts>
+                    <contractListXML>
+                        <contractId>123456</contractId>
+                    </contractListXML>
+                    <contractListXML>
+                        <contractId>123457</contractId>
+                    </contractListXML>
+                    <contractListXML>
+                        <contractId>123458</contractId>
+                    </contractListXML>
+                </contracts>
+            `;
+
+            const xml = parseXML(xmlString);
+            createTable(xml);
+        }
+    </script>
+</head>
+<body>
+    <h1>Contract List</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Contract ID</th>
+                <th>Fetched Data</th>
+                <th>Input</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="contractTableBody">
+        </tbody>
+    </table>
+    <div id="xmlOutput"></div>
+</body>
+</html>
