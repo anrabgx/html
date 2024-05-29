@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Contract List</title>
+    <style>
+        table.contract-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table.contract-table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        .buttons {
+            margin-top: 10px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        #xmlOutput {
+            margin-top: 20px;
+            white-space: pre-wrap;
+            border: 1px solid black;
+            padding: 10px;
+        }
+    </style>
+    <script>
+        function parseXML(xmlString) {
+            const parser = new DOMParser();
+            return parser.parseFromString(xmlString, 'text/xml');
+        }
+
+        function fetchData(contractId) {
+            // Placeholder function to fetch data
+            return `Data for contract ID: ${contractId}`;
+        }
+
+        function saveAllData() {
+            const contractList = document.querySelectorAll('.contract-row');
+            let xmlString = '<contracts>';
+
+            contractList.forEach(row => {
+                const contractId = row.querySelector('.contract-id').textContent;
+                const fetchedData = row.querySelector('.fetched-data').textContent;
+                const inputValue = row.querySelector('input').value;
+
+                xmlString += generateXML(contractId, fetchedData, inputValue);
+            });
+
+            xmlString += '</contracts>';
+            displayXML(xmlString);
+        }
+
+        function cancelAllData() {
+            const inputs = document.querySelectorAll('.contract-row input');
+            inputs.forEach(input => input.value = '');
+        }
+
+        function generateXML(contractId, fetchedData, inputValue) {
+            return `
+                <contract>
+                    <contractId>${contractId}</contractId>
+                    <derivedValue>${fetchedData}</derivedValue>
+                    <inputValue>${inputValue}</inputValue>
+                </contract>`;
+        }
+
+        function displayXML(xmlString) {
+            const xmlOutput = document.getElementById('xmlOutput');
+            xmlOutput.textContent = xmlString;
+        }
+
+        function createTable(xml) {
+            const contractList = xml.getElementsByTagName('contractListXML');
+            const tableBody = document.getElementById('contractTableBody');
+
+            let rowsHTML = '';
+
+            for (let i = 0; i < contractList.length; i++) {
+                const contractId = contractList[i].getElementsByTagName('contractId')[0].textContent;
+                const fetchedData = fetchData(contractId);
+
+                rowsHTML += `
+                    <tr class="contract-row">
+                        <td class="contract-id">${contractId}</td>
+                        <td class="fetched-data">${fetchedData}</td>
+                        <td><input type="text" id="input_${contractId}"></td>
+                    </tr>
+                `;
+            }
+
+            tableBody.innerHTML = rowsHTML;
+        }
+
+        window.onload = function() {
+            const xmlString = `
+                <contracts>
+                    <contractListXML>
+                        <contractId>123456</contractId>
+                    </contractListXML>
+                    <contractListXML>
+                        <contractId>123457</contractId>
+                    </contractListXML>
+                    <contractListXML>
+                        <contractId>123458</contractId>
+                    </contractListXML>
+                </contracts>
+            `;
+
+            const xml = parseXML(xmlString);
+            createTable(xml);
+        }
+    </script>
+</head>
+<body>
+    <h1>Contract List</h1>
+    <table class="contract-table">
+        <thead>
+            <tr>
+                <th>Contract ID</th>
+                <th>Fetched Data</th>
+                <th>Input</th>
+            </tr>
+        </thead>
+        <tbody id="contractTableBody">
+        </tbody>
+    </table>
+    <div class="buttons">
+        <button onclick="saveAllData()">Save All</button>
+        <button onclick="cancelAllData()">Cancel All</button>
+    </div>
+    <div id="xmlOutput"></div>
+</body>
+</html>
