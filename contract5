@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate XML from Table</title>
+</head>
+<body>
+
+<div class="input-table" align="center">
+    <table class="contract-table" cellspacing="2" oralist="cmRecordIdGroup/mappedDataArea/contracts" onResize="if (this.clientWidth > this.parentNode.clientWidth) { this.parentNode.className += ' oraGridDivScroll'; };">
+        <thead>
+            <tr align="center">
+                <th nowrap oraLabel="contractId" class="oraGridColumnHeader">Contract ID</th>
+                <th nowrap oraLabel="sald" style="text-align: center;" class="oraGridColumnHeader">SaId</th>
+                <th nowrap oraLabel="assignedCertificates" class="oraGridColumnHeader">Assigned Certificates</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td oraField="contractId" class="oraNormal oraDisplayCell" id="contractIdData">12345</td>
+                <td oraField="saId" class="oraNormal oraDisplayCell" id="saldData">
+                    <span oraField="sald" oraType="fkRef:true; info:true; context:true; navigation: true;">67890</span>
+                </td>
+                <td class="oraNormal oraDisplayCell" id="inputData">
+                    <input class="oraInput" oraField="assignedCertificates" style="width: 150px;" value="Cert123"/>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<button onclick="generateXML()">Save</button>
+
+<script>
+function generateXML() {
+    const table = document.querySelector('.contract-table tbody');
+    const rows = table.getElementsByTagName('tr');
+    
+    let xmlString = '<?xml version="1.0" encoding="UTF-8"?>\n<contracts>\n';
+
+    for (let row of rows) {
+        const contractId = row.querySelector('td[oraField="contractId"]').textContent.trim();
+        const saId = row.querySelector('td[oraField="saId"] span[oraField="sald"]').textContent.trim();
+        const assignedCertificates = row.querySelector('input[oraField="assignedCertificates"]').value.trim();
+        
+        xmlString += `  <contract>\n`;
+        xmlString += `    <contractId>${contractId}</contractId>\n`;
+        xmlString += `    <saId>${saId}</saId>\n`;
+        xmlString += `    <assignedCertificates>${assignedCertificates}</assignedCertificates>\n`;
+        xmlString += `  </contract>\n`;
+    }
+
+    xmlString += '</contracts>';
+
+    console.log(xmlString);
+
+    // For demo purposes, let's show the XML in an alert
+    alert(xmlString);
+
+    // Optionally, you could also send this XML string to a server or save it as a file
+}
+</script>
+
+</body>
+</html>
