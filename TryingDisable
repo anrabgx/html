@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Contract List</title>
+    <style>
+        table.contract-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table.contract-table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        .buttons {
+            margin-top: 10px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        #xmlOutput {
+            margin-top: 20px;
+            white-space: pre-wrap;
+            border: 1px solid black;
+            padding: 10px;
+        }
+        .disabled {
+            background-color: #f0f0f0;
+            cursor: not-allowed;
+        }
+    </style>
+    <script>
+        let inputIds = [];
+
+        function parseXML(xmlString) {
+            const parser = new DOMParser();
+            return parser.parseFromString(xmlString, 'text/xml');
+        }
+
+        function fetchData(contractId) {
+            // Placeholder function to fetch data
+            // Simulating already populated data for demonstration
+            if (contractId === '123457') {
+                return `Existing data for contract ID: ${contractId}`;
+            }
+            return `Data for contract ID: ${contractId}`;
+        }
+
+        function saveAllData() {
+            let xmlString = '<contracts>';
+
+            inputIds.forEach(id => {
+                const inputElement = document.getElementById(id);
+                const contractId = inputElement.dataset.contractId;
+                const fetchedData = document.getElementById(`fetched_${contractId}`).textContent;
+                const inputValue = inputElement.value;
+
+                xmlString += generateXML(contractId, fetchedData, inputValue);
+            });
+
+            xmlString += '</contracts>';
+            displayXML(xmlString);
+        }
+
+        function cancelAllData() {
+            inputIds.forEach(id => {
+                const inputElement = document.getElementById(id);
+                if (!inputElement.disabled) {
+                    inputElement.value = '';
+                }
+            });
+        }
+
+        function generateXML(contractId, fetchedData, inputValue) {
+            return `
+                <contract>
+                    <contractId>${contractId}</contractId>
+                    <derivedValue>${fetchedData}</derivedValue>
+                    <inputValue>${inputValue}</inputValue>
+                </contract>`;
+        }
+
+        function displayXML(xmlString) {
+            const xmlOutput = document.getElementById('xmlOutput');
+            xmlOutput.textContent = xmlString;
+        }
+
+        function createTable(xml) {
+            const contractList = xml.getElementsByTagName('contractListXML');
+            const tableBody = document.getElementById('contractTableBody');
+
+            let rowsHTML = '';
+
+            for (let i = 0; i < contractList.length; i++) {
+                const contractId = contractList[i].getElementsByTagName('contractId')[0].textContent;
+                const fetchedData = fetchData(contractId);
+                const inputId = `input_${contractId}`;
+                const fetchedDataId = `fetched_${contractId}`;
+
+                rowsHTML += `
+                    <tr>
+                        <td class="contract-id">${contractId}</td>
+                        <td id="${fetchedDataId}">${fetchedData}</td>
+                        <td><input type="text" id="${inputId}" data-contract-id="${contractId}"></td>
+                    </tr>
+                `;
+
+                // Store the input ID for later use
+                inputIds.push(inputId);
+            }
+
+            tableBody.innerHTML = rowsHTML;
+
+            // Disable inputs and save button if data is already populated
+            inputIds.forEach(id => {
+                const inputElement = document.getElementById(id);
+                const contractId = inputElement.dataset.contractId;
+                const fetchedData = document.getElementById(`fetched_${contractId}`).textContent;
+
+                if (fetchedData.includes('Existing data')) {
+                    inputElement.value = fetchedData;
+                    inputElement.disabled = true;
+                    inputElement.classList.add('disabled');
+                }
+            });
+
+            // Disable save button if all inputs are disabled
+            const allDisabled = inputIds.every(id => document.getElementById(id).disabled);
+            const saveButton = document.getElementById('saveButton');
+            if (allDisabled) {
+                saveButton.disabled = true;
+                saveButton.classList.add('disabled');
+            }
+        }
+
+        window.onload = function() {
+            const xmlString = `
+                <contracts>
+                    <contractListXML>
+                        <contractId>123456</contractId>
+                    </contractListXML>
+                    <contractListXML>
+                        <contractId>123457</contractId>
+                    </contractListXML>
+                    <contractListXML>
+                        <contractId>123458</contractId>
+                    </contractListXML>
+                </contracts>
+            `;
+
+            const xml = parseXML(xmlString);
+            createTable(xml);
+        }
+    </script>
+</head>
+<body>
+    <h1>Contract List</h1>
+    <table class="contract-table">
+        <thead>
+            <tr>
+                <th>Contract ID</th>
+                <th>Fetched Data</th>
+                <th>Input</th>
+            </tr>
+        </thead>
+        <tbody id="contractTableBody">
+        </tbody>
+    </table>
+    <div class="buttons">
+        <button id="saveButton" onclick="saveAllData()">Save All</button>
+        <button onclick="cancelAllData()">Cancel All</button>
+    </div>
+    <div id="xmlOutput"></div>
+</body>
+</html>
