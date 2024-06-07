@@ -1,45 +1,66 @@
-import java.time.LocalDate;
-import java.time.YearMonth;
+import java.util.Calendar;
 
 public class DateUtils {
 
-    public static LocalDate getPreviousMonthDate(LocalDate date) {
-        // Get the previous month
-        YearMonth previousMonth = YearMonth.from(date.minusMonths(1));
+    public static Calendar getPreviousMonthDate(Calendar date) {
+        // Clone the date to avoid modifying the original date
+        Calendar previousMonthDate = (Calendar) date.clone();
         
-        // Get the last day of the previous month
-        int lastDayOfPreviousMonth = previousMonth.lengthOfMonth();
+        // Move to the previous month
+        previousMonthDate.add(Calendar.MONTH, -1);
         
-        // Get the day of the current date, or the last day of the previous month if the day is out of range
-        int day = Math.min(date.getDayOfMonth(), lastDayOfPreviousMonth);
+        // Get the maximum day of the previous month
+        int maxDayOfPreviousMonth = previousMonthDate.getActualMaximum(Calendar.DAY_OF_MONTH);
         
-        // Return the new date
-        return LocalDate.of(previousMonth.getYear(), previousMonth.getMonth(), day);
+        // Adjust the day if necessary
+        if (date.get(Calendar.DAY_OF_MONTH) > maxDayOfPreviousMonth) {
+            previousMonthDate.set(Calendar.DAY_OF_MONTH, maxDayOfPreviousMonth);
+        } else {
+            previousMonthDate.set(Calendar.DAY_OF_MONTH, date.get(Calendar.DAY_OF_MONTH));
+        }
+        
+        return previousMonthDate;
     }
 
-    public static LocalDate getStartOfPreviousMonth(LocalDate date) {
-        // Get the previous month
-        YearMonth previousMonth = YearMonth.from(date.minusMonths(1));
+    public static Calendar getStartOfPreviousMonth(Calendar date) {
+        // Clone the date to avoid modifying the original date
+        Calendar previousMonthStart = (Calendar) date.clone();
         
-        // Return the first day of the previous month
-        return LocalDate.of(previousMonth.getYear(), previousMonth.getMonth(), 1);
+        // Move to the previous month
+        previousMonthStart.add(Calendar.MONTH, -1);
+        
+        // Set the day to the first day of the previous month
+        previousMonthStart.set(Calendar.DAY_OF_MONTH, 1);
+        
+        return previousMonthStart;
     }
 
     public static void main(String[] args) {
         // Test cases
-        LocalDate date1 = LocalDate.of(2023, 11, 30);
-        LocalDate date2 = LocalDate.of(2023, 1, 31);
-        LocalDate date3 = LocalDate.of(2024, 3, 31);
-        LocalDate date4 = LocalDate.of(2024, 2, 29);  // Leap year case
-        LocalDate date5 = LocalDate.of(2024, 2, 1);
-        LocalDate date6 = LocalDate.of(2024, 1, 1);
+        Calendar date1 = Calendar.getInstance();
+        date1.set(2023, Calendar.NOVEMBER, 30);
+        
+        Calendar date2 = Calendar.getInstance();
+        date2.set(2023, Calendar.JANUARY, 31);
+        
+        Calendar date3 = Calendar.getInstance();
+        date3.set(2024, Calendar.MARCH, 31);
+        
+        Calendar date4 = Calendar.getInstance();
+        date4.set(2024, Calendar.FEBRUARY, 29);  // Leap year case
+        
+        Calendar date5 = Calendar.getInstance();
+        date5.set(2024, Calendar.FEBRUARY, 1);
+        
+        Calendar date6 = Calendar.getInstance();
+        date6.set(2024, Calendar.JANUARY, 1);
 
-        System.out.println("Previous date for " + date1 + " is " + getPreviousMonthDate(date1));
-        System.out.println("Previous date for " + date2 + " is " + getPreviousMonthDate(date2));
-        System.out.println("Previous date for " + date3 + " is " + getPreviousMonthDate(date3));
-        System.out.println("Previous date for " + date4 + " is " + getPreviousMonthDate(date4));
+        System.out.println("Previous date for " + date1.getTime() + " is " + getPreviousMonthDate(date1).getTime());
+        System.out.println("Previous date for " + date2.getTime() + " is " + getPreviousMonthDate(date2).getTime());
+        System.out.println("Previous date for " + date3.getTime() + " is " + getPreviousMonthDate(date3).getTime());
+        System.out.println("Previous date for " + date4.getTime() + " is " + getPreviousMonthDate(date4).getTime());
 
-        System.out.println("Start of previous month for " + date5 + " is " + getStartOfPreviousMonth(date5));
-        System.out.println("Start of previous month for " + date6 + " is " + getStartOfPreviousMonth(date6));
+        System.out.println("Start of previous month for " + date5.getTime() + " is " + getStartOfPreviousMonth(date5).getTime());
+        System.out.println("Start of previous month for " + date6.getTime() + " is " + getStartOfPreviousMonth(date6).getTime());
     }
 }
