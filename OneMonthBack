@@ -1,0 +1,32 @@
+import java.time.LocalDate;
+import java.time.YearMonth;
+
+public class DateUtils {
+
+    public static LocalDate getPreviousMonthDate(LocalDate date) {
+        // Get the previous month
+        YearMonth previousMonth = YearMonth.from(date.minusMonths(1));
+        
+        // Get the last day of the previous month
+        int lastDayOfPreviousMonth = previousMonth.lengthOfMonth();
+        
+        // Get the day of the current date, or the last day of the previous month if the day is out of range
+        int day = Math.min(date.getDayOfMonth(), lastDayOfPreviousMonth);
+        
+        // Return the new date
+        return LocalDate.of(previousMonth.getYear(), previousMonth.getMonth(), day);
+    }
+
+    public static void main(String[] args) {
+        // Test cases
+        LocalDate date1 = LocalDate.of(2023, 11, 30);
+        LocalDate date2 = LocalDate.of(2023, 1, 31);
+        LocalDate date3 = LocalDate.of(2024, 3, 31);
+        LocalDate date4 = LocalDate.of(2024, 2, 29);  // Leap year case
+
+        System.out.println("Previous date for " + date1 + " is " + getPreviousMonthDate(date1));
+        System.out.println("Previous date for " + date2 + " is " + getPreviousMonthDate(date2));
+        System.out.println("Previous date for " + date3 + " is " + getPreviousMonthDate(date3));
+        System.out.println("Previous date for " + date4 + " is " + getPreviousMonthDate(date4));
+    }
+}
