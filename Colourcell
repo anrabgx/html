@@ -1,0 +1,44 @@
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.*;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+public class ExcelBackgroundColorExample {
+
+    public static void main(String[] args) throws IOException {
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet sheet = workbook.createSheet("Sheet1");
+
+        // Create a header row
+        XSSFRow headerRow = sheet.createRow(0);
+
+        // Create a CellStyle with a background color
+        XSSFCellStyle headerStyle = workbook.createCellStyle();
+        XSSFColor bgColor = new XSSFColor(new java.awt.Color(192, 192, 192), new DefaultIndexedColorMap()); // Light gray color
+        headerStyle.setFillForegroundColor(bgColor);
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+        // Create a Font and set the font color
+        XSSFFont font = workbook.createFont();
+        XSSFColor textColor = new XSSFColor(new java.awt.Color(255, 0, 0), new DefaultIndexedColorMap()); // Red color
+        font.setColor(textColor);
+
+        // Apply the font to the CellStyle
+        headerStyle.setFont(font);
+
+        // Create headers in a loop
+        String[] headers = {"Header1", "Header2", "Header3"};
+        for (int i = 0; i < headers.length; i++) {
+            XSSFCell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
+        }
+
+        // Write the output to a file
+        try (FileOutputStream fileOut = new FileOutputStream("workbook.xlsx")) {
+            workbook.write(fileOut);
+        }
+        
+        workbook.close();
+    }
+}
