@@ -1,0 +1,31 @@
+import java.math.BigDecimal;
+
+public class Main {
+    public static void main(String[] args) {
+        BigDecimal original = new BigDecimal("-50.00");
+        BigDecimal newValue = new BigDecimal("-45.00");
+
+        // Calculate the difference
+        BigDecimal difference = newValue.subtract(original);
+
+        // Determine whether to assign to "characteristics" or "adjustment"
+        BigDecimal characteristics = null;
+        BigDecimal adjustment = null;
+
+        if (difference.compareTo(BigDecimal.ZERO) > 0) {
+            // New value is greater (less negative) than original
+            characteristics = difference;
+        } else {
+            // New value is lesser (more negative) than original
+            adjustment = difference;
+        }
+
+        // Print the results
+        if (characteristics != null) {
+            System.out.println("Characteristics: " + characteristics);
+        }
+        if (adjustment != null) {
+            System.out.println("Adjustment: " + adjustment);
+        }
+    }
+}
